@@ -26,19 +26,17 @@ passport.use(
       callbackURL: '/auth/google/callback',
       proxy: true
     },
-    (accessToken, refreshToken, profile, done) => {
-      User.findOne({ googleId: profile.id }) // check if there is existing user record in mongoDB
-        .then(existingUser => {
-          if (existingUser) {
-            // we already have a record with the given profile ID
-            done(null, existingUser);
-          } else {
-            // we don't have a user record with this ID make a new record
-            new User({ googleId: profile.id }) // create new user using model instance and save to mongoDB
-              .save()
-              .then(user => done(null, user));
-          }
-        });
+    async (accessToken, refreshToken, profile, done) => {
+      const existingUser = await User.findOne({ googleId: profile.id }); // check if there is existing user record in mongoDB
+
+      if (existingUser) {
+        // we already have a record with the given profile ID
+        done(null, existingUser);
+      } else {
+        // we don't have a user record with this ID make a new record
+        const user = await new User({ googleId: profile.id }).save(); // create new user using model instance and save to mongoDB
+        done(null, user);
+      }
     }
   )
 ); //new instance of googlestrategy config, tell passport module to use this strat
