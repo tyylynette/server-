@@ -7,15 +7,18 @@ const User = mongoose.model('users'); //one argument is to fetch schema out of m
 
 passport.serializeUser((user, done) => {
   //convert the profile ID from google into an identifying piece of info
+  //THIS GENERATES THE COOKIE
   done(null, user.id); // user.id refers to mongoDB's generated ID
 });
 
 passport.deserializeUser((id, done) => {
+  //THIS DE-ENCRYPTS THE COOKIE and then:
   //turn an ID into a mongoose model instance
   User.findById(id).then(user => {
     //find user by ID in mongoDB
     done(null, user);
-  });
+  }); //at the end the user model instance is then added to the req.user object
+  //and returned to the route handler
 });
 
 passport.use(
